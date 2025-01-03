@@ -19,6 +19,9 @@
   "homepage": "https://github.com/diaszakir/BackEndAssignment2#readme",
   "description": "",
   "dependencies": {
-    "dotenv": "^16.4.7"
+    "body-parser": "^1.20.3",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "spotify-web-api-node": "^5.0.2"
   }
 }
