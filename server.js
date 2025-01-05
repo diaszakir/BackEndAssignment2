@@ -22,39 +22,36 @@ app.get("/", (req, res) => {
 });
 
 // Find song and artist
-// Find song and artist
 app.post("/find", async (req, res) => {
-    const { song, artist } = req.body;
-  
-    if (!song) {
-      return res.status(400).send("Please provide a song name.");
-    }
-  
-    try {
-      // Получаем токен доступа
-      await spotifyApi.clientCredentialsGrant().then(
-        (data) => spotifyApi.setAccessToken(data.body["access_token"]),
-        (err) => {
-          console.error("Failed to retrieve access token", err);
-          throw new Error("Failed to authenticate with Spotify.");
-        }
-      );
-  
-      // Выполняем поиск трека
-      const searchTracksResponse = await spotifyApi.searchTracks(
-        artist ? `track:${song} artist:${artist}` : `track:${song}`
-      );
-  
-      const track = searchTracksResponse.body.tracks.items[0];
-      if (!track) {
-        return res.status(404).send("Track not found.");
+  const { song, artist } = req.body;
+
+  if (!song) {
+    return res.status(400).send("Please provide a song name.");
+  }
+
+  try {
+    await spotifyApi.clientCredentialsGrant().then(
+      (data) => spotifyApi.setAccessToken(data.body["access_token"]),
+      (err) => {
+        console.error("Failed to retrieve access token", err);
+        throw new Error("Failed to authenticate with Spotify.");
       }
-  
-      const trackArtist = track.artists[0]; // Первый артист трека
-      const albumName = track.album.name; // Имя альбома
-      const songUrl = track.external_urls.spotify; // Ссылка на песню
-  
-      res.send(`
+    );
+
+    const searchTracksResponse = await spotifyApi.searchTracks(
+      artist ? `track:${song} artist:${artist}` : `track:${song}`
+    );
+
+    const track = searchTracksResponse.body.tracks.items[0];
+    if (!track) {
+      return res.status(404).send("Track not found.");
+    }
+
+    const trackArtist = track.artists[0];
+    const albumName = track.album.name;
+    const songUrl = track.external_urls.spotify;
+
+    res.send(`
         <!DOCTYPE html>
         <html>
           <head>
@@ -74,12 +71,11 @@ app.post("/find", async (req, res) => {
           </body>
         </html>
       `);
-    } catch (err) {
-      console.error(err);
-      res.status(500).send(`Error fetching Spotify data: ${err.message}`);
-    }
-  });
-  
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(`Error fetching Spotify data: ${err.message}`);
+  }
+});
 
 // Start server
 const PORT = 3000;
